@@ -179,7 +179,7 @@ describe.skipIf(!built)("the bridge on the app core", () => {
     expect(problems).toEqual([]);
     // Every ported method has its case (or is checked below).
     // (Teleport and the Keyvault: vault-native.test.ts; This machine, Devices, Settings and the rest: host-bridge.test.ts; the relay allowance: relay-usage.test.ts; resource numbers: resources.test.ts; presence: presence-bridge.test.ts; the Windows runtime fix: below.)
-    const elsewhere = new Set(["session.signIn", "spaces.create", "spaces.delete", "spaces.openStream", "relay.usage", "sharing.removals", "sharing.ackRemovals", "resources.get", "presence.join", "presence.publish", "presence.leave", "spaces.fixRuntime", ...AGENT_METHODS, ...VAULT_METHODS, ...HOST_METHODS]);
+    const elsewhere = new Set(["assistant.call","session.signIn", "spaces.create", "spaces.delete", "spaces.openStream", "relay.usage", "sharing.removals", "sharing.ackRemovals", "resources.get", "presence.join", "presence.publish", "presence.leave", "spaces.fixRuntime", ...AGENT_METHODS, ...VAULT_METHODS, ...HOST_METHODS]);
     const ported = bridge.registry.methods.filter((m) => !NOT_YET.includes(m) && !elsewhere.has(m));
     expect(ported.filter((m) => !cases.some(([c]) => c === m))).toEqual([]);
   });
@@ -188,7 +188,7 @@ describe.skipIf(!built)("the bridge on the app core", () => {
     const info = (await call("app.info")) as { platform: string; host: string; version: string; methods: string[] };
     expect(info).toMatchObject({ platform: "macos", host: "electron", version: "1.2.3" });
     expect(info.methods[0]).toBe("app.info");
-    expect(info.methods.at(-1)).toBe("spaces.fixRuntime");
+    expect(info.methods.at(-1)).toBe("assistant.call");
   });
 
   it("checks spaces.fixRuntime's action, and has no runtime fix off Windows", async () => {

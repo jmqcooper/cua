@@ -7,7 +7,7 @@ import { useExperimentFlags } from "@/bridge";
 import type { KeybindingCommand } from "@/lib/keybindings";
 
 export interface NavItem {
-  to: "/spaces" | "/machines" | "/agents" | "/volume" | "/keyvault" | "/notifications" | "/settings";
+  to: "/assistant" | "/spaces" | "/machines" | "/agents" | "/volume" | "/keyvault" | "/notifications" | "/settings";
   label: string;
   icon: LucideIcon;
   /** Its keyboard shortcut, when it has one. */
@@ -15,6 +15,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
+  { to: "/assistant", label: "Assistant", icon: BotIcon },
   { to: "/spaces", label: "Spaces", icon: LayoutGridIcon, command: "nav.spaces" },
   { to: "/machines", label: "Computers", icon: ServerIcon, command: "nav.machines" },
   { to: "/agents", label: "Agents", icon: BotIcon, command: "nav.agents" },

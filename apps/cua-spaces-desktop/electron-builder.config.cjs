@@ -134,7 +134,7 @@ function nativeLayout(platform) {
 /** @type {import("electron-builder").Configuration} */
 module.exports = {
   appId: "ai.cua.spaces.desktop",
-  productName: "Cua Spaces",
+  productName: "R2D2 Cua",
   copyright: "Copyright © 2026 Cua AI, Inc.",
   directories: { output: "dist", buildResources: "packaging" },
   // `name` is the npm name, @cua/cua-spaces-desktop, which electron-builder
@@ -147,6 +147,8 @@ module.exports = {
   compression: "normal",
   files: ["package.json", "dist-electron/**/*", "placeholder/**/*", "!**/*.map"],
   extraResources: [
+    { from: "controller.mjs", to: "controller.mjs" },
+    { from: "mcp.mjs", to: "mcp.mjs" },
     // The built web UI sits next to the asar, served by the cua-spaces:// handler.
     ...(fs.existsSync(path.join(webDist, "index.html"))
       ? [{ from: webDist, to: "web", filter: ["**/*", "!**/*.map"] }]
@@ -277,7 +279,7 @@ module.exports = {
     syncDesktopName: true,
     desktop: {
       entry: {
-        Name: "Cua Spaces",
+        Name: "R2D2 Cua",
         StartupWMClass: linuxId,
         Keywords: "cua;spaces;sandbox;agents;",
       },
@@ -298,6 +300,7 @@ module.exports = {
   // the desktop for (packaging/ai.cua.spaces.policy; the AppImage cannot, so
   // there the confirmation is unavailable and the Keyvault stays off).
   deb: {
+    compression: "gz",
     artifactName: "cua-spaces_${version}_${arch}.deb",
     fpm: [
       // Removing the package turns off what the app set up outside /opt

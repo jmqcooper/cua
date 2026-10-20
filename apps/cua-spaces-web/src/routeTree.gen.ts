@@ -13,6 +13,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as SettingsRouteRouteImport } from './routes/settings/route'
 import { Route as AgentsIndexRouteImport } from './routes/agents/index'
 import { Route as KeyvaultIndexRouteImport } from './routes/keyvault/index'
@@ -31,6 +32,11 @@ import { Route as VolumeIndexRouteImport } from './routes/volume/index'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRouteRoute = SettingsRouteRouteImport.update({
@@ -107,6 +113,7 @@ const VolumeIndexRoute = VolumeIndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteRouteWithChildren
+  '/assistant': typeof AssistantRoute
   '/settings/about': typeof SettingsAboutRoute
   '/settings/agents': typeof SettingsAgentsRoute
   '/settings/devices': typeof SettingsDevicesRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/assistant': typeof AssistantRoute
   '/settings/about': typeof SettingsAboutRoute
   '/settings/agents': typeof SettingsAgentsRoute
   '/settings/devices': typeof SettingsDevicesRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/settings': typeof SettingsRouteRouteWithChildren
+  '/assistant': typeof AssistantRoute
   '/settings/about': typeof SettingsAboutRoute
   '/settings/agents': typeof SettingsAgentsRoute
   '/settings/devices': typeof SettingsDevicesRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/settings'
+    | '/assistant'
     | '/settings/about'
     | '/settings/agents'
     | '/settings/devices'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/assistant'
     | '/settings/about'
     | '/settings/agents'
     | '/settings/devices'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/settings'
+    | '/assistant'
     | '/settings/about'
     | '/settings/agents'
     | '/settings/devices'
@@ -211,6 +223,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SettingsRouteRoute: typeof SettingsRouteRouteWithChildren
+  AssistantRoute: typeof AssistantRoute
   SpacesSpaceIdRoute: typeof SpacesSpaceIdRoute
   AgentsIndexRoute: typeof AgentsIndexRoute
   KeyvaultIndexRoute: typeof KeyvaultIndexRoute
@@ -228,6 +241,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -354,6 +374,7 @@ const SettingsRouteRouteWithChildren = SettingsRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SettingsRouteRoute: SettingsRouteRouteWithChildren,
+  AssistantRoute: AssistantRoute,
   SpacesSpaceIdRoute: SpacesSpaceIdRoute,
   AgentsIndexRoute: AgentsIndexRoute,
   KeyvaultIndexRoute: KeyvaultIndexRoute,

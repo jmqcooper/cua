@@ -8,6 +8,7 @@
 // `machines.changed`, `keyvault.changed`, `session.changed`, `settings.changed`,
 // `checklist.changed`, `update.changed`, `startup.changed`, `spaces.createProgress`). `ipc.ts` carries it over
 // Electron's IPC.
+import { assistantMethods } from "./assistant";
 import { aboutMethods } from "./about";
 import { agentKeysMethods } from "./agent-keys";
 import { agentsMethods, agentsSignature } from "./agents";
@@ -45,6 +46,7 @@ import { volumeMethods } from "./volume";
 import { windowMethods } from "./window";
 
 export const AREAS = [
+  assistantMethods,
   appMethods,
   sessionMethods,
   spacesMethods,

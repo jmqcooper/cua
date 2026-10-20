@@ -28,7 +28,7 @@ describe("packaging", () => {
     // electron-builder names the Windows install folder and the updater cache after `name`.
     expect(config.extraMetadata.name).toBe("cua-spaces");
     expect(config.extraMetadata.name).toMatch(/^[a-z0-9-]+$/);
-    expect(config.productName).toBe("Cua Spaces");
+    expect(config.productName).toBe("R2D2 Cua");
   });
 
   it("ships the Linux window icon next to the tray icon", () => {

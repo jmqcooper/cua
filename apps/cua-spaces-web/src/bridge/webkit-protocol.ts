@@ -172,7 +172,7 @@ export type WebkitMethod = (typeof WEBKIT_METHODS)[number];
  * (`ops/stream.ts`); the Mac app draws video natively. (Both hosts run
  * this page's first run: `onboarding.get`, `onboarding.complete`.) It also joins presence for the video the page draws
  * (`presence.*`, `ops/presence.ts`). */
-export const ELECTRON_HOST_METHODS = ["spaces.openStream", "presence.join", "presence.publish", "presence.leave", "spaces.fixRuntime"] as const;
+export const ELECTRON_HOST_METHODS = ["spaces.openStream", "presence.join", "presence.publish", "presence.leave", "spaces.fixRuntime", "assistant.call"] as const;
 
 /** `onboarding.get` and `onboarding.complete`'s answer: whether the first run finished, and as what. */
 export interface WkOnboarding {

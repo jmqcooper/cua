@@ -208,7 +208,8 @@ async function startNativeHost(showRoute: (route: string) => void, globalShortcu
   });
   // Keyvault access is never silent: the notch indicator follows live deliveries even with no window open.
   env.model.keyvault.startPoll();
-  if (refresh && env.cua) {
+  // Fleet owns this fork's provider configuration. Preserve its lazy MCP wrapper.
+  if (refresh && env.cua && !app.getVersion().includes("-r2d2.")) {
     const cua = env.cua;
     env.model.startup.onReady.push(() => void refreshAfterUpdate(native, cua).then((notice) => notice && env.model.show(notice, false)));
   }

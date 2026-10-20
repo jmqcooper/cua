@@ -37,7 +37,7 @@ describe("release config", () => {
     expect(c.mac.appId).toBe("com.trycua.spaces.macos");
     expect(swiftString("CFBundleIdentifier")).toBe(c.mac.appId);
     expect(c.appId).toBe("ai.cua.spaces.desktop");
-    expect(c.productName).toBe("Cua Spaces");
+    expect(c.productName).toBe("R2D2 Cua");
   });
 
   it("carries the Swift app's usage descriptions and Sparkle key", () => {
