@@ -53,7 +53,7 @@ export function providerCommand(thread, config) {
     return [config.hermes, args];
   }
   if (thread.provider === 'claude-code') {
-    const args = ['-p', '--output-format', 'stream-json', '--verbose', '--permission-mode', 'default', '--allowedTools', 'mcp__cua__*,mcp__gbrain__*,mcp__r2d2-google__*,Read,Glob,Grep'];
+    const args = ['-p', '--output-format', 'stream-json', '--verbose', '--permission-mode', 'default', '--allowedTools', 'mcp__cua__*,mcp__gbrain__*,mcp__r2d2-google__*,Read,Glob,Grep', '--disallowedTools', 'mcp__gbrain__synthesize,mcp__gbrain__submit_agent'];
     if (thread.session_id) args.push('--resume', thread.session_id);
     return [config.claude, args];
   }

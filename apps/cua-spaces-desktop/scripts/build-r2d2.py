@@ -40,7 +40,7 @@ wasm.mkdir(parents=True,exist_ok=True)
 (wasm/'core.js').write_text(source.replace('/assets/'+match[1],'./'+match[1]))
 shutil.copy2(assets/match[1],wasm/match[1])
 if '--prepare-only' in sys.argv:raise SystemExit(0)
-env=os.environ|{'GITHUB_REPOSITORY':'jmqcooper/cua','CUA_SPACES_ARCHS':'x64','CUA_SPACES_VERSION':'0.11.0-r2d2.1'}
+env=os.environ|{'GITHUB_REPOSITORY':'jmqcooper/cua','CUA_SPACES_ARCHS':'x64','CUA_SPACES_VERSION':'0.11.0-r2d2.2'}
 for cwd,command in [(web,['pnpm','install','--frozen-lockfile']),(desktop,['pnpm','install','--frozen-lockfile']),(web,['pnpm','exec','vite','build']),(web,['pnpm','typecheck']),(desktop,['pnpm','build']),(desktop,['node','--test','controller.check.mjs']),(desktop,['pnpm','exec','vitest','run','test/assistant.test.ts']),(desktop,['pnpm','exec','electron-builder','--linux','deb','--config','electron-builder.config.cjs','--publish','never'])]:
     subprocess.run(command,cwd=cwd,env=env,check=True)
-print('Built '+str(desktop/'dist/cua-spaces_0.11.0-r2d2.1_amd64.deb'))
+print('Built '+str(desktop/'dist/cua-spaces_0.11.0-r2d2.2_amd64.deb'))
