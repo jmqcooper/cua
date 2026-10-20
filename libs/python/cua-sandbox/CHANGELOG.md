@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.2](https://github.com/trycua/cua/compare/sandbox-v0.9.1...sandbox-v0.9.2) (2026-10-20)
+
+
+### Bug Fixes
+
+* **sandbox:** the [driver] extra installs the current cua-driver (0.37.0) (CUA-1902) ([#5533](https://github.com/trycua/cua/issues/5533)) ([34f3279](https://github.com/trycua/cua/commit/34f3279247e0e910e4896ee33c499beafdb7ab9a))
+* **sdk:** delete the Fleet SDK, pools and claims from the Rust SDK, cua-sandbox, Cua Bench and the apps (CUA-1836) ([#5488](https://github.com/trycua/cua/issues/5488)) ([348c47c](https://github.com/trycua/cua/commit/348c47cc30b1d222844480838ccc4acf53f7a511))
+* **spaces:** say computer instead of machine (CUA-1863) ([#5508](https://github.com/trycua/cua/issues/5508)) ([5cbe31c](https://github.com/trycua/cua/commit/5cbe31c7109fa70eb596b6bde3b5964449e8676e))
+
 ## [0.9.1](https://github.com/trycua/cua/compare/sandbox-v0.9.0...sandbox-v0.9.1) (2026-10-19)
 
 
