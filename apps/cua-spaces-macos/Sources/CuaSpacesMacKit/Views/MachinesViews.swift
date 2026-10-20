@@ -161,7 +161,7 @@ struct MachineInfoView: View {
             if !hosted.isEmpty {
                 Section("Spaces") {
                     ForEach(hosted, id: \.id) { s in
-                        LabeledContent(s.name, value: s.statusText)
+                        LabeledContent(s.name, value: CoreMessages.text(s.statusText))
                     }
                 }
             }
