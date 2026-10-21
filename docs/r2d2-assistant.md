@@ -28,6 +28,7 @@ node --test controller.check.mjs
 pnpm exec vitest run test/assistant.test.ts
 cd ../cua-spaces-web
 CUA_ASSISTANT_LIVE_TEST=1 node scripts/assistant-smoke.mjs
+CUA_ASSISTANT_LIVE_TEST=1 node scripts/assistant-desktop-smoke.mjs
 ```
 
 The smoke test uses the development Electron host. Packaged release fuses disable Node inspection, so the installed package is checked through its normal desktop launch rather than Playwright attachment. The smoke test is explicitly opt-in. It launches the actual Electron app and uses the real local assistant service and subscription. It creates a verification turn, searches GBrain, opens routines and toggles the queue. It briefly shows the owned window without taking focus for its screenshot. The app is then closed and background completion can be checked through the controller.
@@ -35,6 +36,8 @@ The smoke test uses the development Electron host. Packaged release fuses disabl
 Checks on r2d2 also covered both native subscription responses, actual Cua MCP screenshots, cold desktop start, disk preservation on stop, the real gaming guard, and persistent background services. Fleet's 14 tests pass.
 
 The complete upstream Electron suite initially passed 655 tests and failed eight, plus the controller's Node test being picked up by Vitest. The Node test now has a separate filename and command, the added Electron method is accounted for in its contract test, and missing sparse-checkout fixtures were restored. Three remaining assertions were reproduced against unchanged upstream source with the same release binaries: nudges method coverage, nudges adapter arguments and the Linux runtime settings row in Mac fixtures. They are upstream release/test mismatches, outside this integration. The web suite passed 454 tests, skipped 204 opt-in/native cases, and has one unrelated released-WASM drop-well wording assertion. The new bridge, packaging and release tests pass, 26 tests, as do the five controller tests. Both native subscriptions completed Cua screenshot tasks; Codex additionally typed into its terminal. A dated GBrain fact was written and read back through the native subscription. The first native MCP test exposed missing unattended approval support in Hermes; the dedicated Cua server and selected local GBrain maintenance writes now have explicit native Codex tool approval policy. Global shell permissions were not relaxed. Paid GBrain synthesize and submit_agent tools are disabled. Linux is the verified platform for this fork; the cross-platform desktop matrix was not run.
+
+The installed Linux package was also checked through its normal sandboxed launcher on 2026-10-21: a message submitted in the UI completed through the subscription, memory search returned dated evidence, and the desktop viewer opened. That check found a lifecycle mismatch: direct Docker starts and stops left Cua's saved power state unchanged. The controller now updates power through Cua and then fully stops the container to release RAM. The opt-in desktop regression covers two cold starts, viewer registry state, guest readiness, resource limits and idempotent full stops.
 
 ## Limits
 

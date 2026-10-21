@@ -296,12 +296,17 @@ export class Controller {
       if (!container.State.Running || container.State.Paused) {
         // A cold guest replaces its RPC transport. Drop the daemon's old connection.
         await exec('systemctl',['--user','restart','cua-daemon.service'],{timeout:15000});
+      }
+      // Docker owns memory release; Cua owns the registry used by Spaces and its viewer.
+      await exec(this.config.cua, ['spaces','start',`local:${DESKTOP_NAME}`,'--json'], {timeout:45000,maxBuffer:32000});
+      if (!container.State.Running || container.State.Paused) {
         let ready=false;
         for(let i=0;i<30;i++){try{await exec(this.config.cua,['sb','exec',DESKTOP_NAME,'true'],{timeout:3000,maxBuffer:32000});ready=true;break;}catch{await new Promise(r=>setTimeout(r,1000));}}
         if(!ready)throw new Error('The desktop started but is not ready. Retry shortly.');
       }
       if (this.gaming()) {
-        await exec('docker', ['stop','--time','5',container.Id], {timeout:15000});
+        const current = await this.ownedContainer();
+        if (current?.Id === container.Id) await this.stopContainer(current);
         this.setDesktop({name: DESKTOP_NAME, container:container.Id, state:'off', reason:'gaming'});
         throw new Error('CS2 started while the desktop was preparing. The desktop was stopped.');
       }
@@ -312,9 +317,24 @@ export class Controller {
     finally { this.desktopBusy = false; this.desktopPromise = null; }
   }
 
+  async stopContainer(container) {
+    if (!container.State.Running) return;
+    if (container.State.Paused) await exec('docker',['unpause',container.Id],{timeout:10000});
+    try {
+      await exec(this.config.cua,['spaces','stop',`local:${DESKTOP_NAME}`,'--json'],{timeout:45000,maxBuffer:32000});
+    } finally {
+      // Cua suspends containers. Fully stop this owned container to release its RAM.
+      const current = await this.ownedContainer();
+      if (current?.Id === container.Id) {
+        if (current.State.Paused) await exec('docker',['unpause',container.Id],{timeout:10000});
+        if (current.State.Running) await exec('docker',['stop','--time','10',container.Id],{timeout:20000});
+      }
+    }
+  }
+
   async stopDesktop(reason = 'manual') {
     const state = this.desktopState();
-    if (state.container) { const owned=await this.ownedContainer(); if (owned?.Id===state.container) await exec('docker',['stop','--time','10',state.container],{timeout:20000}); }
+    if (state.container) { const owned=await this.ownedContainer(); if (owned?.Id===state.container) await this.stopContainer(owned); }
     this.setDesktop({ ...state, state: 'off', reason });
     return this.desktopState();
   }
