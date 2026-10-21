@@ -44,3 +44,7 @@ The installed Linux package was also checked through its normal sandboxed launch
 This is a single-owner first version. Subscription limits still apply; it does not pool one consumer subscription for employees. Claude permission prompts cannot be approved interactively from this first UI; the dedicated Cua, GBrain and read-only Google tools are allowed, and other actions retain native CLI permission rules. A failed or interrupted job is shown for review rather than automatically repeating an external action. Routines use intervals, not a wall-clock calendar.
 
 The desktop uses Docker runc on this machine, with 2 CPUs and 3 GB RAM, without a shared host browser profile. It is not a VM or gVisor sandbox. Cua cloud features retain their own sign-in requirements. Personal health imports and device collection are separate work. iOS builds remain on the Mac.
+
+## Local source tools
+
+The Fleet integration `integrations/life` supplies the owner-only `r2d2-life` MCP tools for source status, structured health measurements, archived meeting sources and requesting the managed inbox worker. Claude's native allowed-tool list includes this local server alongside the existing Cua, GBrain and read-only Google connections. Codex and Claude both called the new tools successfully on 2026-10-21. Health imports require actual owner exports; an empty metrics list is not a connected health device. The source worker and optional daily knowledge review run on r2d2 and respect the existing gaming pause.
