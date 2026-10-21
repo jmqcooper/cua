@@ -4,6 +4,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowUpIcon, BotIcon, CheckIcon, CirclePauseIcon, CirclePlayIcon, ClockIcon, LoaderCircleIcon, MonitorIcon, PlusIcon, SearchIcon, SquareIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DevicesPanel } from "@/components/assistant/devices-panel";
+import { LifePanel } from "@/components/assistant/life-panel";
 import { cn } from "@/lib/utils";
 import { electronTransport } from "@/bridge/transport";
 import type { HostWindow } from "@/bridge/detect";
@@ -36,12 +38,12 @@ function AssistantPage(){
   const [draft,setDraft]=useState("");
   const [sending,setSending]=useState(false);
   const [creating,setCreating]=useState(false);
-  const [tab,setTab]=useState<"chat"|"memory"|"routines">("chat");
+  const [tab,setTab]=useState<"chat"|"memory"|"routines"|"sources"|"devices">("chat");
   const [desktopLoading,setDesktopLoading]=useState(false);
   const bottom=useRef<HTMLDivElement>(null);
   const lastMessage=useRef("");
   const refresh=useCallback(async()=>{
-    try{const next=await assistantCall<Snapshot>("snapshot",selected?{threadId:selected}:{});setSnapshot(next);if(!selected)setSelected(next.selectedId);}
+    try{const next=await assistantCall<Snapshot>("snapshot",selected?{threadId:selected}:{});setSnapshot(next);setError(null);if(!selected)setSelected(next.selectedId);}
     catch(e){setError(e instanceof Error?e.message:String(e));}
   },[selected]);
   useEffect(()=>{void refresh();const timer=setInterval(()=>{if(document.visibilityState!=="hidden")void refresh();},1800);return()=>clearInterval(timer);},[refresh]);
@@ -73,7 +75,7 @@ function AssistantPage(){
     </aside>
     <section className="flex min-w-0 flex-1 flex-col">
       <header className="flex h-16 shrink-0 items-center justify-between border-b px-6"><div className="flex items-center gap-3"><h1 className="text-base font-semibold">{thread?.title||"Assistant"}</h1><span className="rounded-full border px-2 py-0.5 text-2xs text-muted-foreground">{provider?.plan||"Subscription"}</span></div><Button variant="ghost" size="sm" onClick={()=>void run("pause",{paused:!snapshot?.paused})}>{snapshot?.paused?<CirclePlayIcon className="mr-1.5 size-3.5"/>:<CirclePauseIcon className="mr-1.5 size-3.5"/>}{snapshot?.paused?"Resume queue":"Pause queue"}</Button></header>
-      <nav className="flex shrink-0 gap-6 border-b px-6" aria-label="Assistant views">{(["chat","memory","routines"] as const).map(t=><button key={t} onClick={()=>setTab(t)} className={cn("border-b-2 border-transparent py-3 text-xs capitalize text-muted-foreground",tab===t&&"border-brand font-medium text-foreground")}>{t}</button>)}</nav>
+      <nav className="flex shrink-0 gap-6 border-b px-6" aria-label="Assistant views">{(["chat","sources","devices","memory","routines"] as const).map(t=><button key={t} onClick={()=>setTab(t)} className={cn("border-b-2 border-transparent py-3 text-xs capitalize text-muted-foreground",tab===t&&"border-brand font-medium text-foreground")}>{t}</button>)}</nav>
       {snapshot?.paused?<div className="border-b border-amber-500/20 bg-amber-500/5 px-6 py-2.5 text-xs text-amber-700 dark:text-amber-400" role="status">{snapshot.gaming?"CS2 is running. Agent work is paused and new messages will wait in the queue.":"New work is paused. Your queued messages are saved."}</div>:null}
       {error?<div className="border-b bg-destructive/5 px-6 py-3 text-xs text-destructive" role="alert">{error}</div>:null}
       {tab==="chat"?<>
@@ -85,7 +87,7 @@ function AssistantPage(){
           {jobs[0]?.state==="failed"||jobs[0]?.state==="interrupted"?<div className="mx-auto mb-3 max-w-3xl rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-xs text-destructive">{jobs[0].error}<button className="ml-2 underline" onClick={()=>setDraft(snapshot?.messages.filter(m=>m.role==="user").at(-1)?.content||"")}>Review and retry</button></div>:null}
           <form className="mx-auto max-w-3xl rounded-2xl border bg-background shadow-sm focus-within:border-brand/40" onSubmit={e=>void submit(e)}><textarea aria-label="Message your assistant" value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void submit();}}} placeholder={snapshot?.paused?"Write a message to queue for later…":"Ask, plan, or give your assistant a task…"} className="max-h-48 min-h-20 w-full resize-y bg-transparent px-4 pt-3 text-sm leading-6 outline-none"/><div className="flex items-center justify-between px-3 pb-3"><span className="flex items-center gap-1.5 pl-1 text-2xs text-muted-foreground">{provider?.signedIn?<CheckIcon className="size-3 text-brand-strong"/>:null}{provider?.signedIn?"Uses your subscription":"Checking subscription sign-in"}</span><Button type="submit" size="icon-sm" aria-label="Send message" disabled={!draft.trim()||sending||!thread||!provider?.signedIn}><ArrowUpIcon className="size-4"/></Button></div></form>
         </div>
-      </>:tab==="memory"?<MemoryPanel/>:<RoutinesPanel routines={snapshot?.routines||[]} thread={thread} onRun={run}/>}
+      </>:tab==="devices"?<DevicesPanel call={assistantCall}/>:tab==="sources"?<LifePanel call={assistantCall}/>:tab==="memory"?<MemoryPanel/>:<RoutinesPanel routines={snapshot?.routines||[]} thread={thread} onRun={run}/>}
     </section>
     <aside className="hidden w-64 shrink-0 overflow-y-auto border-l bg-muted/15 p-5 lg:block">
       <h2 className="mb-4 text-xs font-medium">Computer</h2><div className="rounded-xl border bg-background p-4"><MonitorIcon className="mb-3 size-6 text-muted-foreground" strokeWidth={1.5}/><div className="text-sm font-medium">Linux desktop</div><div className="mt-1 text-xs leading-5 text-muted-foreground">{desktopLoading||snapshot?.desktopBusy?"Preparing the desktop…":snapshot?.desktop.state==="running"?"Running in its own Cua Space.":"Starts only when needed. Uses up to 3 GB RAM while running."}</div><div className="mt-4 flex flex-wrap gap-2"><Button size="sm" variant="outline" disabled={desktopLoading||snapshot?.desktopBusy||snapshot?.gaming} onClick={()=>void desktop(snapshot?.desktop.state!=="running")}>{desktopLoading?<LoaderCircleIcon className="mr-1 size-3 animate-spin"/>:null}{snapshot?.desktop.state==="running"?"Stop desktop":"Start desktop"}</Button>{snapshot?.desktop.state==="running"?<Link to="/spaces" className="self-center text-xs text-brand-strong hover:underline">Open Spaces</Link>:null}</div></div>

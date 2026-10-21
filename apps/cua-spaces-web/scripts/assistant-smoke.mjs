@@ -10,6 +10,7 @@ const args=process.env.CUA_ASSISTANT_APP?[]:['--no-sandbox',desktop];
 const app=await _electron.launch({executablePath,args,cwd:desktop,env:{...process.env,DISPLAY:':1',XAUTHORITY:'/run/user/1000/gdm/Xauthority',CUA_SPACES_E2E_HIDDEN:'1',CUA_SPACES_USER_DATA:resolve(process.env.HOME,'.config/Cua Spaces'),CUA_TELEMETRY:'0',DO_NOT_TRACK:'1'},timeout:60000});
 try{
   const page=await app.firstWindow();console.log('Window URL',page.url());
+  await app.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows()[0];w.webContents.setBackgroundThrottling(false);w.showInactive();});
   page.on('pageerror',e=>console.error('Page error:',e.message));
   await page.locator('[data-assistant-page]').waitFor({timeout:90000});
   await page.getByRole('button',{name:'Send message',exact:true}).waitFor();
@@ -18,6 +19,16 @@ try{
   await page.getByRole('button',{name:'Send message',exact:true}).click({timeout:45000});
   await page.getByText('Cua native UI connection works.',{exact:true}).waitFor({timeout:120000});
   assert((await page.locator('body').innerText()).includes('Running on r2d2'));
+  await page.getByRole('button',{name:'sources',exact:true}).click();
+  await page.getByText('Waiting for your first health export',{exact:true}).waitFor({timeout:30000});
+  await page.getByText('No meeting transcripts imported yet.',{exact:true}).waitFor();
+  await page.screenshot({path:'/tmp/r2d2-cua-sources.png'});
+  await page.getByText('Export and import steps',{exact:true}).click();
+  await page.getByText('WHOOP: More',{exact:false}).waitFor();
+  await page.getByRole('button',{name:'devices',exact:true}).click();
+  await page.getByRole('button',{name:'android phone',exact:false}).waitFor({timeout:30000});
+  await page.getByRole('button',{name:'iphone',exact:false}).waitFor();
+  await page.screenshot({path:'/tmp/r2d2-cua-devices.png'});
   await page.getByRole('button',{name:'memory',exact:true}).click();
   await page.getByRole('textbox',{name:'Search shared knowledge'}).fill('Cua subscription assistant');
   await page.getByRole('button',{name:'Search',exact:true}).click();

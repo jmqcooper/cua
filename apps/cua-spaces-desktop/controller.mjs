@@ -15,7 +15,7 @@ const LIVE = new Set(['queued', 'running']);
 const PROVIDERS = new Set(['hermes-codex', 'claude-code']);
 const MAX_PROMPT = 64000;
 const DESKTOP_NAME = 'r2d2-assistant';
-const CONTEXT = 'You are operating through the Cua assistant on r2d2. Follow the workspace AGENTS.md. Preserve dated original evidence in the shared GBrain. Use the cua MCP tools for a separate Linux desktop when graphical work is required; start it only as needed. The host desktop is for the owner. Google accounts must be selected explicitly. Do not send messages or change remote accounts unless the owner explicitly requests that action. All model work uses the signed-in native subscription; never enable a paid API fallback. Do not run iOS simulators on Linux; the Mac is the iOS host.';
+const CONTEXT = 'You are operating through the Cua assistant on r2d2. Follow the workspace AGENTS.md. Preserve dated original evidence in the shared GBrain. Use the cua MCP tools for a separate Linux desktop when graphical work is required; start it only as needed. The host desktop is for the owner. Google accounts must be selected explicitly. Do not send messages or change remote accounts unless the owner explicitly requests that action. All model work uses the signed-in native subscription; never enable a paid API fallback. For mobile app tasks, use the r2d2-mobile MCP tools. Android runs here; iOS runs on the Mac. Open only the prepared simulator required, observe current references after actions, and close it when the task ends. If filling an unfocused iOS web field fails, observe again, press the field, then type into it. Do not run iOS simulators on Linux; the Mac is the iOS host.';
 
 function text(value, name, max = MAX_PROMPT) {
   if (typeof value !== 'string' || !value.trim() || value.length > max) throw new Error(`Invalid ${name}`);
@@ -53,7 +53,7 @@ export function providerCommand(thread, config) {
     return [config.hermes, args];
   }
   if (thread.provider === 'claude-code') {
-    const args = ['-p', '--output-format', 'stream-json', '--verbose', '--permission-mode', 'default', '--allowedTools', 'mcp__cua__*,mcp__gbrain__*,mcp__r2d2-google__*,mcp__r2d2-life__*,Read,Glob,Grep', '--disallowedTools', 'mcp__gbrain__synthesize,mcp__gbrain__submit_agent'];
+    const args = ['-p', '--output-format', 'stream-json', '--verbose', '--permission-mode', 'default', '--allowedTools', 'mcp__cua__*,mcp__gbrain__*,mcp__r2d2-google__*,mcp__r2d2-life__*,mcp__r2d2-mobile__*,Read,Glob,Grep', '--disallowedTools', 'mcp__gbrain__synthesize,mcp__gbrain__submit_agent'];
     if (thread.session_id) args.push('--resume', thread.session_id);
     return [config.claude, args];
   }
@@ -359,6 +359,25 @@ export class Controller {
         const input=JSON.stringify({query:text(args.query,'search',500),limit:8,budget_tokens:2500});
         const r=await exec(join(this.config.home,'.local/bin/gbrain'),['call','recall',input],{timeout:30000,maxBuffer:128000}); return JSON.parse(r.stdout);
       }
+      case 'life.overview': {
+        const read = async command => JSON.parse((await exec(join(this.config.home,'.local/bin/r2d2-life'),[command],{timeout:20000,maxBuffer:1000000})).stdout);
+        const [status,metrics,meetings]=await Promise.all(['status','metrics','meetings'].map(read));
+        return {status,metrics,meetings,checkedAt:new Date().toISOString()};
+      }
+      case 'life.measurements': {
+        const argv=['query','--metric',text(args.metric,'metric',500),'--source',text(args.source,'source',100),'--limit','200'];
+        for(const [key,flag] of [['unit','unit'],['source_name','source-name'],['start','start'],['end','end']])if(args[key]!=null)argv.push('--'+flag,String(args[key]).slice(0,500));
+        return JSON.parse((await exec(join(this.config.home,'.local/bin/r2d2-life'),argv,{timeout:20000,maxBuffer:1000000})).stdout);
+      }
+      case 'life.scan': await exec('systemctl',['--user','start','--no-block','r2d2-life-ingest.service'],{timeout:10000}); return {state:'requested'};
+      case 'mobile.open':
+      case 'mobile.close':
+      case 'mobile.screenshot': {
+        if(action!=='mobile.close' && this.gaming())throw new Error('CS2 is active. Mobile work is paused.');
+        const result=JSON.parse((await exec(join(this.config.home,'.local/bin/r2d2-mobile'),['call',action.slice(7),JSON.stringify(args)],{timeout:280000,maxBuffer:4000000})).stdout);
+        if(result.error)throw new Error(result.error);return result;
+      }
+      case 'mobile.status': return JSON.parse((await exec(join(this.config.home,'.local/bin/r2d2-mobile'),['status'],{timeout:25000,maxBuffer:128000})).stdout);
       case 'desktop.start': return this.startDesktop();
       case 'desktop.stop': return this.stopDesktop();
       case 'desktop.touch': { const d=this.desktopState();this.setDesktop({...d,lastUsed:Date.now()});return {ok:true}; }
